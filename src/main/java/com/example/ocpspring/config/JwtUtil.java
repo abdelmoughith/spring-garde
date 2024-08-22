@@ -1,21 +1,23 @@
 package com.example.ocpspring.config;
 
 import com.example.ocpspring.control.usersControl.ModeratorController;
+import com.example.ocpspring.services.CustomUserDetails;
+import io.jsonwebtoken.io.Decoders;
+import io.jsonwebtoken.security.Keys;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
-import java.util.Base64;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Function;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+
+import javax.crypto.SecretKey;
 
 @Component
 public class JwtUtil {
@@ -25,25 +27,34 @@ public class JwtUtil {
     @Value("${jwt.expiration}")
     private Long expiration;
 
-    private byte[] decodeSecret() {
-        return Base64.getDecoder().decode(secret);
+    private SecretKey decodeSecret() {
+        // return Base64.getDecoder().decode(secret);
+        byte[] keyBytes = Decoders.BASE64.decode(secret);  // Decode the Base64-encoded secret
+        return Keys.hmacShaKeyFor(keyBytes);  // Generate the SecretKey
     }
 
     public String generateToken(UserDetails userDetails) {
         Map<String, Object> claims = new HashMap<>();
-        //Long userId = ((CustomUserDetails) userDetails).getUserId(); // Assuming CustomUserDetails contains getUserId method
-        //claims.put("id", userId);
+        // last update for ID
+        CustomUserDetails customUserDetails = (CustomUserDetails) userDetails;
+        Long userId = customUserDetails.getUserId();
+        claims.put("id", userId);  // Add the user ID to the claims
         return createToken(claims, userDetails.getUsername());
     }
 
     private String createToken(Map<String, Object> claims, String subject) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(2024, Calendar.SEPTEMBER, 1, 0, 0, 0);
+
         return Jwts.builder()
                 .setClaims(claims)
                 .setSubject(subject)
                 .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + expiration * 1000))
-                .signWith(SignatureAlgorithm.HS256, decodeSecret())
+                //.setExpiration(new Date(System.currentTimeMillis() + expiration * 1000))
+                .setExpiration(calendar.getTime())
+                .signWith(decodeSecret(), SignatureAlgorithm.HS256)
                 .compact();
+
     }
 
     public Boolean validateToken(String token, UserDetails userDetails) {
@@ -72,6 +83,7 @@ public class JwtUtil {
                 .parseClaimsJws(token)
                 .getBody();
     }
+
 
     private Boolean isTokenExpired(String token) {
         return extractExpiration(token).before(new Date());
@@ -105,6 +117,11 @@ public class JwtUtil {
             }
         }
         return null; // Return null if idClaim is not of expected types
+    }
+    public String extractUserUsername(String token) {
+        final Claims claims = extractAllClaims(token);
+        // Check if the idClaim is an instance of Number (could be Integer, Long, etc.)
+        return (String) claims.get("sub");
     }
 
 }

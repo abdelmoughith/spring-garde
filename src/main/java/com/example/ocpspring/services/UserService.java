@@ -15,6 +15,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Optional;
 
 
 @Service
@@ -35,19 +38,25 @@ public class UserService implements UserDetailsService {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
 
-        return new org.springframework.security.core.userdetails.User(
+        return new CustomUserDetails(
                 user.getUsername(),
                 user.getPassword(),
-                Collections.singletonList(new SimpleGrantedAuthority(user.getRole().name()))
+                Collections.singletonList(new SimpleGrantedAuthority(user.getRole().name())),
+                user.getId()
         );
     }
+    public User loadUserById(Long userId) {
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+    }
+
 
     public User registerUser(String firstname, String lastname, String username, String password) {
         User user = new User();
         user.setUsername(username);
         user.setFirstname(firstname);
         user.setLastname(lastname);
-        user.setRole(Role.COLLABORATEUR);
+        user.setRole(Role.SECRETAIRE);
         user.setPassword(passwordEncoder.encode(password));
         return userRepository.save(user);
     }
@@ -75,6 +84,17 @@ public class UserService implements UserDetailsService {
     public Long getCurrentUserId(String jwt) {
         //String jwt = (String) SecurityContextHolder.getContext().getAuthentication().getCredentials();
         return jwtUtil.extractUserId(jwt);
+    }
+    public List<User> getUsersByService(Long serviceId){
+        Optional<ServiceTable> service = serviceRepository.findById(serviceId);
+
+        List<User> users = userRepository.findByServiceTable(service.orElseThrow(
+                () -> new RuntimeException("User not found")
+        ));
+
+        return users.stream()
+                    .sorted(Comparator.comparing(User::getId))
+                    .toList();
     }
 
 }

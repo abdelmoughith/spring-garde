@@ -28,21 +28,23 @@ public class AdminController {
     @Autowired
     private GardeService gardeService;
 
+
     @PutMapping("change-service/{userId}")
     public ResponseEntity<?> changeUserService(
             @PathVariable Long userId,
-            @RequestBody ServiceID serviceID
+            @RequestBody ServiceID serviceId
     ) {
 
-        User updatedUser = userService.changeUserService(userId, serviceID.getServiceId());
+        User updatedUser = userService.changeUserService(userId, serviceId.getServiceId());
         String userResponse = "User : " +
                 updatedUser.getFirstname() +
                 " " +
                 updatedUser.getLastname() +
                 " " +
-                "service updated to " + serviceService.getServiceById(serviceID.getServiceId()).get().getName();
+                "service updated to " + serviceService.getServiceById(serviceId.getServiceId()).get().getName();
         return ResponseEntity.ok(userResponse);
     }
+
 
 
 
@@ -75,6 +77,11 @@ public class AdminController {
         LocalDate weekendDate = LocalDate.parse(request.get("weekendDate"));
         List<Garde> garde = gardeService.findByWeekendDate(weekendDate);
         return ResponseEntity.ok(garde);
+    }
+
+    @GetMapping("/service_user/{service_id}")
+    public ResponseEntity<List<User>> findUsersByService(@PathVariable Long service_id){
+        return ResponseEntity.ok(userService.getUsersByService(service_id));
     }
 }
 

@@ -1,5 +1,6 @@
 package com.example.ocpspring.models.garde;
 
+import com.example.ocpspring.models.collaborateur.Collaborateur;
 import com.example.ocpspring.models.servicepack.ServiceTable;
 import com.example.ocpspring.models.userspack.User;
 import jakarta.persistence.*;
@@ -22,8 +23,8 @@ public class Garde {
     private LocalDate weekendDate;
 
     @ManyToOne
-    @JoinColumn(name = "user_id", nullable = false)
-    private User user;
+    @JoinColumn(name = "collaborateur_id", nullable = false)
+    private Collaborateur collaborateur;
 
     @ManyToOne
     @JoinColumn(name = "service_id", nullable = false)
@@ -32,5 +33,8 @@ public class Garde {
 
     @Column(nullable = false, columnDefinition = "BOOLEAN DEFAULT TRUE")
     private boolean disponibilite = true;
+
+    @Column
+    private String checked = null;
 }
 
