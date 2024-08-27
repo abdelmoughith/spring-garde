@@ -1,5 +1,6 @@
 package com.example.ocpspring.control.usersControl;
 
+import com.example.ocpspring.models.collaborateur.Collaborateur;
 import com.example.ocpspring.models.garde.Garde;
 import com.example.ocpspring.models.request.ServiceID;
 import com.example.ocpspring.models.userspack.Role;
@@ -99,6 +100,14 @@ public class AdminController {
     public ResponseEntity<List<User>> findUsersByService(@PathVariable Long service_id){
         return ResponseEntity.ok(userService.getUsersByService(service_id));
     }
+    @GetMapping("/getgarde/{id}")
+    public ResponseEntity<List<Garde>> getGardeOfService(@PathVariable Long id){
+        if (id == -1L){
+            return ResponseEntity.ok(gardeService.getAllGardes());
+        }
+        return ResponseEntity.ok(gardeService.getGardeByService(id));
+    }
+
 }
 
 

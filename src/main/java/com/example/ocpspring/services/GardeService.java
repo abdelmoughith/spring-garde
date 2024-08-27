@@ -124,7 +124,6 @@ public class GardeService {
 
         // Update the availability status
         garde.setDisponibilite(disponibilite);
-        garde.setChecked("ONE");
         gardeRepository.save(garde);
 
         // If the user is no longer available, reassign future guard duties
@@ -177,5 +176,13 @@ public class GardeService {
         return latestGarde.map(Garde::getWeekendDate).orElse(null);
     }
 
+    public List<Garde> getGardeByService(Long serviceId){
+        ServiceTable serviceTable = serviceRepository.findById(serviceId)
+                .orElseThrow(() -> new EntityNotFoundException("Service not found"));
+        return gardeRepository.findByServiceTable(serviceTable);
+    }
+    public List<Garde> getAllGardes(){
+        return gardeRepository.findAll();
+    }
 }
 

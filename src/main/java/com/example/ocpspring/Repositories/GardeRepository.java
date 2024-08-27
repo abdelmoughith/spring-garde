@@ -13,6 +13,7 @@ import java.util.Optional;
 public interface GardeRepository extends JpaRepository<Garde, Long> {
 
     Optional<List<Garde>> findByWeekendDate(LocalDate localDate);
+    List<Garde> findByServiceTable(ServiceTable serviceTable);
 
     List<Garde> findAllByWeekendDateAfterOrderByWeekendDateAsc(LocalDate now);
     List<Garde> findAllByIdGreaterThanEqualAndServiceTableOrderByWeekendDateAsc(Long id, ServiceTable serviceTable);

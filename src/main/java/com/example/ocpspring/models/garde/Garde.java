@@ -33,8 +33,5 @@ public class Garde {
 
     @Column(nullable = false, columnDefinition = "BOOLEAN DEFAULT TRUE")
     private boolean disponibilite = true;
-
-    @Column
-    private String checked = null;
 }
 
