@@ -6,6 +6,7 @@ import com.example.ocpspring.config.JwtUtil;
 import com.example.ocpspring.models.servicepack.ServiceTable;
 import com.example.ocpspring.models.userspack.Role;
 import com.example.ocpspring.models.userspack.User;
+import com.example.ocpspring.models.userspack.UserUpdateRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -24,6 +25,7 @@ import java.util.Optional;
 public class UserService implements UserDetailsService {
     @Autowired
     private UserRepository userRepository;
+
 
     @Autowired
     private ServiceRepository serviceRepository;
@@ -71,11 +73,23 @@ public class UserService implements UserDetailsService {
     public User changeUserService(Long userId, Long serviceId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
-        ServiceTable serviceTable = serviceRepository.findById(serviceId)
-                .orElseThrow(() -> new RuntimeException("Service not found"));
-        user.setServiceTable(serviceTable);
+
+        if (serviceId != null) {
+            ServiceTable serviceTable = serviceRepository.findById(serviceId)
+                    .orElseThrow(() -> new RuntimeException("Service not found"));
+            user.setServiceTable(serviceTable);
+        } else {
+            user.setServiceTable(null); // Allow setting serviceTable to null
+        }
+
         return userRepository.save(user);
     }
+    public void deleteUser(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        userRepository.delete(user);
+    }
+
 
     @Autowired
     private JwtUtil jwtUtil;
@@ -101,6 +115,25 @@ public class UserService implements UserDetailsService {
     }
     public List<User> getAllUsers(){
         return userRepository.findAll();
+    }
+
+    public User updateUser(Long userId, UserUpdateRequest userUpdateRequest) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        if (userUpdateRequest.getServiceId() != null) {
+            ServiceTable serviceTable = serviceRepository.findById(userUpdateRequest.getServiceId())
+                    .orElseThrow(() -> new RuntimeException("Service not found"));
+            user.setServiceTable(serviceTable);
+        } else {
+            user.setServiceTable(null); // Set service to null if no service ID is provided
+        }
+
+        user.setUsername(userUpdateRequest.getUsername());
+        user.setFirstname(userUpdateRequest.getFirstname());
+        user.setLastname(userUpdateRequest.getLastname());
+
+        return userRepository.save(user);
     }
 
 }

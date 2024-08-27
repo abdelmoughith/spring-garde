@@ -49,7 +49,8 @@ public class Config {
                         .requestMatchers( "/auth/login",
                                 "/users/secretaires").permitAll()
                         .requestMatchers( "/auth/register",
-                               "/auth/users" ).hasAuthority("ADMIN")
+                               "/auth/users" ,
+                                "/auth/delete/**").hasAuthority("ADMIN")
                         // Update Garde for SECRETAIRE
                         .requestMatchers("/moderator/**").permitAll()
                         .anyRequest().permitAll()

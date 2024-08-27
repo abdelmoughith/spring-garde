@@ -13,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -30,20 +31,35 @@ public class AdminController {
 
 
     @PutMapping("change-service/{userId}")
-    public ResponseEntity<?> changeUserService(
+    public ResponseEntity<Map<String, String>> changeUserService(
             @PathVariable Long userId,
             @RequestBody ServiceID serviceId
     ) {
-
         User updatedUser = userService.changeUserService(userId, serviceId.getServiceId());
-        String userResponse = "User : " +
-                updatedUser.getFirstname() +
-                " " +
-                updatedUser.getLastname() +
-                " " +
-                "service updated to " + serviceService.getServiceById(serviceId.getServiceId()).get().getName();
-        return ResponseEntity.ok(userResponse);
+        String userResponse;
+
+        if (serviceId.getServiceId() != null) {
+            userResponse = "User : " +
+                    updatedUser.getFirstname() +
+                    " " +
+                    updatedUser.getLastname() +
+                    " " +
+                    "service updated to " +
+                    serviceService.getServiceById(serviceId.getServiceId()).get().getName();
+        } else {
+            userResponse = "User : " +
+                    updatedUser.getFirstname() +
+                    " " +
+                    updatedUser.getLastname() +
+                    " " +
+                    "service set to null";
+        }
+
+        Map<String, String> responseMap = new HashMap<>();
+        responseMap.put("response", userResponse);
+        return ResponseEntity.ok(responseMap);
     }
+
 
 
 
