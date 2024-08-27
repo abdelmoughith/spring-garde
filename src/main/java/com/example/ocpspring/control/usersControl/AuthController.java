@@ -3,6 +3,7 @@ package com.example.ocpspring.control.usersControl;
 import com.example.ocpspring.config.JwtUtil;
 import com.example.ocpspring.models.request.AuthenticationResponse;
 import com.example.ocpspring.models.request.LoginRequest;
+import com.example.ocpspring.models.userspack.Role;
 import com.example.ocpspring.models.userspack.User;
 import com.example.ocpspring.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,10 +12,9 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/auth")
@@ -53,5 +53,15 @@ public class AuthController {
         final String jwt = jwtUtil.generateToken(userDetails);
 
         return ResponseEntity.ok(new AuthenticationResponse(jwt));
+    }
+
+    @GetMapping("/users")
+    public List<User> getAllUsers() {
+        return userService.getAllUsers();
+    }
+
+    @GetMapping("/users/secretaires")
+    public List<User> getSecretaires() {
+        return userService.getUsersByRole(Role.SECRETAIRE);
     }
 }

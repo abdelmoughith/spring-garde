@@ -96,5 +96,11 @@ public class UserService implements UserDetailsService {
                     .sorted(Comparator.comparing(User::getId))
                     .toList();
     }
+    public List<User> getUsersByRole(Role role){
+        return userRepository.findByRole(role);
+    }
+    public List<User> getAllUsers(){
+        return userRepository.findAll();
+    }
 
 }

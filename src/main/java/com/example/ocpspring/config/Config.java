@@ -2,6 +2,7 @@ package com.example.ocpspring.config;
 
 import com.example.ocpspring.models.userspack.Role;
 import com.example.ocpspring.services.UserService;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -16,6 +17,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
@@ -44,15 +46,23 @@ public class Config {
                                 "/admin/change-service/**").hasAuthority("ADMIN")
                         .requestMatchers("/admin/**").permitAll()
                         // Authentication
-                        .requestMatchers( "/auth/login").permitAll()
-                        .requestMatchers( "/auth/register").hasAuthority("ADMIN")
+                        .requestMatchers( "/auth/login",
+                                "/users/secretaires").permitAll()
+                        .requestMatchers( "/auth/register",
+                               "/auth/users" ).hasAuthority("ADMIN")
                         // Update Garde for SECRETAIRE
                         .requestMatchers("/moderator/**").permitAll()
                         .anyRequest().permitAll()
                 )
+                /*
                 .formLogin(formLogin -> formLogin
                         .loginPage("/login")
                         .permitAll()
+                )
+
+                 */
+                .exceptionHandling(exceptionHandling -> exceptionHandling
+                                .authenticationEntryPoint(customAuthenticationEntryPoint())
                 )
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
@@ -62,6 +72,15 @@ public class Config {
                 //.httpBasic(Customizer.withDefaults())
         ;
         return httpSecurity.build();
+    }
+
+    @Bean
+    public AuthenticationEntryPoint customAuthenticationEntryPoint() {
+        return (request, response, authException) -> {
+            response.setContentType("application/json");
+            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+            response.getOutputStream().println("{ \"error\": \"Forbidden: Authentication is required\" }");
+        };
     }
     
     @Bean

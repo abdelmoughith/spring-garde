@@ -18,8 +18,8 @@ public class GardeScheduler {
 
 
     // @Scheduled(cron = "0 0 0 * * FRI")
-    //@Scheduled(cron = "0 0 0 * * MON")
-    @Scheduled(fixedRate = 30, timeUnit = TimeUnit.SECONDS)
+    @Scheduled(cron = "0 0 0 * * MON")
+    //@Scheduled(fixedRate = 30, timeUnit = TimeUnit.MINUTES)
     public void scheduleGarde() {
         gardeService.assignGardeForNext8Weeks();
         log.info("Guard duty assigned for the next 8 weekends.");
