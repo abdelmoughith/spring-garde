@@ -75,7 +75,7 @@ public class UserService implements UserDetailsService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        if (serviceId != null) {
+        if (serviceId != -1L) {
             ServiceTable serviceTable = serviceRepository.findById(serviceId)
                     .orElseThrow(() -> new RuntimeException("Service not found"));
             user.setServiceTable(serviceTable);

@@ -39,7 +39,7 @@ public class AdminController {
         User updatedUser = userService.changeUserService(userId, serviceId.getServiceId());
         String userResponse;
 
-        if (serviceId.getServiceId() != null) {
+        if (serviceId.getServiceId() != -1L) {
             userResponse = "User : " +
                     updatedUser.getFirstname() +
                     " " +
