@@ -7,6 +7,7 @@ import com.example.ocpspring.models.servicepack.ServiceTable;
 import com.example.ocpspring.models.userspack.Role;
 import com.example.ocpspring.models.userspack.User;
 import com.example.ocpspring.models.userspack.UserUpdateRequest;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -136,4 +137,8 @@ public class UserService implements UserDetailsService {
         return userRepository.save(user);
     }
 
+    public User findByUsername(String username) {
+        return userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("user not found"));
+    }
 }

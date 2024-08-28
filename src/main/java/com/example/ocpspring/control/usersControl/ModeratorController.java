@@ -2,30 +2,20 @@ package com.example.ocpspring.control.usersControl;
 
 import com.example.ocpspring.models.collaborateur.Collaborateur;
 import com.example.ocpspring.models.garde.Garde;
-import com.example.ocpspring.models.request.booleanRequest;
-import com.example.ocpspring.models.servicepack.ServiceTable;
+import com.example.ocpspring.models.request.BooleanRequest;
 import com.example.ocpspring.models.userspack.User;
 import com.example.ocpspring.services.GardeService;
-import com.example.ocpspring.services.ServiceService;
 import com.example.ocpspring.services.UserService;
-import jakarta.persistence.EntityNotFoundException;
-import org.apache.tomcat.util.http.parser.Authorization;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
-import java.time.LocalDate;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.stream.Collectors;
+import java.util.*;
 
 @RestController
 @RequestMapping("/moderator")
@@ -84,11 +74,13 @@ public class ModeratorController {
         return ResponseEntity.ok(gardeService.getCollabsByService(service_id));
     }
     @PutMapping("/disponibilite/{id}")
-    public ResponseEntity<String> updateDisponibilite(
+    public ResponseEntity<Map<String, String>> updateDisponibilite(
             @RequestHeader("Authorization") String token,
             @PathVariable Long id,
-            @RequestBody booleanRequest disponibilite) {
+            @RequestBody BooleanRequest disponibilite) {
+        Map<String, String> response = new HashMap<>();
         try {
+
             // Get the current user ID from the JWT token
             Long currentUserId = userService.getCurrentUserId(token.replace("Bearer ", ""));
 
@@ -99,17 +91,19 @@ public class ModeratorController {
             // Check if the Collaborateur's ServiceTable matches the current user's ServiceTable
             if (garde.getServiceTable().getId().equals(currentUser.getServiceTable().getId())) {
                 gardeService.updateDisponibilite(id, disponibilite.isDisponibilite());
-                return new ResponseEntity<>("Disponibilite updated successfully.", HttpStatus.CREATED);
+                response.put("response", "Disponibilite updated successfully");
+                return new ResponseEntity<>(response, HttpStatus.CREATED);
             } else {
-
-                return new ResponseEntity<>(null, HttpStatus.FORBIDDEN);
+                response.put("response", "Unauthorized");
+                return new ResponseEntity<>(response, HttpStatus.FORBIDDEN);
             }
         } catch (DataIntegrityViolationException e) {
             return new ResponseEntity<>(null, HttpStatus.CONFLICT); // Conflict status code
         } catch (RuntimeException e) {
             return new ResponseEntity<>(null, HttpStatus.NOT_FOUND); // Not found status code if user or service not found
         } catch (Exception ex) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error updating disponibilite.");
+            response.put("response", "Error updating disponibilite.");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
         }
     }
 }

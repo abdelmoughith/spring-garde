@@ -6,6 +6,6 @@ import lombok.*;
 @AllArgsConstructor
 @Getter
 @Setter
-public class booleanRequest {
+public class BooleanRequest {
     private boolean disponibilite;
 }

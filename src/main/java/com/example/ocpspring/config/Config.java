@@ -53,6 +53,7 @@ public class Config {
                                 "/auth/delete/**").hasAuthority("ADMIN")
                         // Update Garde for SECRETAIRE
                         .requestMatchers("/moderator/**").permitAll()
+                        .requestMatchers("/user/me").authenticated()
                         .anyRequest().permitAll()
                 )
                 /*
